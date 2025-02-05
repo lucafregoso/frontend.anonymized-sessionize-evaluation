@@ -1,0 +1,48 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@lit/react": "^1.0.7",
+    "@tailwindcss/vite": "^4.0.5",
+    "cookie": "^1.0.2",
+    "domelementtype": "^2.3.0",
+    "domhandler": "^5.0.3",
+    "html-dom-parser": "^5.0.13",
+    "html-react-parser": "^5.2.2",
+    "inline-style-parser": "^0.2.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-property": "^2.0.2",
+    "react-router": "^7.1.5",
+    "react-router-dom": "^7.1.5",
+    "scheduler": "^0.25.0",
+    "set-cookie-parser": "^2.7.1",
+    "style-to-js": "^1.1.16",
+    "style-to-object": "^1.0.8",
+    "tailwindcss": "^4.0.5",
+    "turbo-stream": "^3.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@stencil/react-output-target": "^0.8.2",
+    "@types/node": "^22.13.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5"
+  }
+}
