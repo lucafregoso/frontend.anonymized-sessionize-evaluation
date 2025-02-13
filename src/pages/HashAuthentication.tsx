@@ -1,11 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
-import {
-  CmRow,
-  CmCol,
-  CmButton,
-  CmContainer,
-} from "@emotioncod/cm-design-system-react";
 
 import config from "../lib/config";
 export default function HashAuthentication() {
@@ -31,15 +25,21 @@ export default function HashAuthentication() {
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("cmrm25", data.token);
-      // localStorage.setItem("hash", hash);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+        })
+      );
       navigate(`/vote`);
     }
   };
 
   return (
     <div className="login-container">
-      <CmContainer
-        className="login-form"
+      <div
+        className="container login-form"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -48,12 +48,12 @@ export default function HashAuthentication() {
           height: "100vh",
         }}
       >
-        <CmRow>
-          <CmCol>
+        <div className="row">
+          <div className="col">
             <h1>Login</h1>
-          </CmCol>
-        </CmRow>
-      </CmContainer>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

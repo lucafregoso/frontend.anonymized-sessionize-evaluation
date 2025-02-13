@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare module "@emotioncod/cm-design-system-react";
+declare module "@emotioncod/cm-design-system";

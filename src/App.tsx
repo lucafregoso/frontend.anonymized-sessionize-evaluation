@@ -8,7 +8,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/vote" element={<Vote />} />
         <Route path="/:hash" element={<HashAuthentication />} />
         <Route path="/" element={<Home />} />
