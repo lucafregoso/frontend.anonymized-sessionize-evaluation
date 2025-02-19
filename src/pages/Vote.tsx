@@ -1,10 +1,11 @@
-import { MouseEvent, useState, useEffect, useMemo } from "react";
+import { MouseEvent, useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 // import Accordion from "../components/accordion";
 
 import config from "../lib/config";
-import Accordion from "../components/accordion";
+// import Accordion from "../components/accordion";
+import AccordionThin from "../components/accordionThin";
 
 interface Session {
   id: string;
@@ -40,13 +41,9 @@ export default function Vote() {
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem("user") || "{}"));
-    fetchSessions();
-    fetchVotedSessions();
-  }, [navigate]);
+  const [activeSession, setActiveSession] = useState<Session | null>(null);
 
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     const token = localStorage.getItem("cmrm25");
     if (!token) {
       navigate(loginUrl);
@@ -63,9 +60,9 @@ export default function Vote() {
       const data = await response.json();
       setSessions(data);
     }
-  };
+  }, [navigate]);
 
-  const fetchVotedSessions = async () => {
+  const fetchVotedSessions = useCallback(async () => {
     const token = localStorage.getItem("cmrm25");
     if (!token) {
       navigate(loginUrl);
@@ -81,60 +78,66 @@ export default function Vote() {
       const data = await response.json();
       setVotes(data);
     }
-  };
-  const handleVote = async (evt: MouseEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
-    const { session_id } = {
-      session_id: "",
-      ...evt.currentTarget.dataset,
-    };
+  }, [navigate]);
+  const handleVote = useCallback(
+    async (evt: MouseEvent<HTMLButtonElement>) => {
+      evt.preventDefault();
+      const { session_id } = {
+        session_id: "",
+        ...evt.currentTarget.dataset,
+      };
 
-    const token = localStorage.getItem("cmrm25");
-    if (!token) {
-      navigate(loginUrl);
-      return;
-    }
-    const response = await fetch(`${config.apiBaseUrl}/api/v1/votes`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ session_id }),
-    });
-    if (response.ok) {
-      fetchVotedSessions();
-    } else {
-      console.error("Failed to vote");
-    }
-  };
-  const undoVote = async (evt: MouseEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
-    const { session_id, vote_id } = {
-      session_id: "",
-      vote_id: "",
-      ...evt.currentTarget.dataset,
-    };
+      const token = localStorage.getItem("cmrm25");
+      if (!token) {
+        navigate(loginUrl);
+        return;
+      }
+      const response = await fetch(`${config.apiBaseUrl}/api/v1/votes`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ session_id }),
+      });
+      if (response.ok) {
+        fetchVotedSessions();
+      } else {
+        console.error("Failed to vote");
+      }
+    },
+    [navigate, fetchVotedSessions]
+  );
+  const undoVote = useCallback(
+    async (evt: MouseEvent<HTMLButtonElement>) => {
+      evt.preventDefault();
+      const { session_id, vote_id } = {
+        session_id: "",
+        vote_id: "",
+        ...evt.currentTarget.dataset,
+      };
 
-    const token = localStorage.getItem("cmrm25");
-    if (!token) {
-      navigate(loginUrl);
-      return;
-    }
-    const response = await fetch(`${config.apiBaseUrl}/api/v1/votes`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ session_id, vote_id }),
-    });
-    if (response.ok) {
-      fetchVotedSessions();
-    } else {
-      console.error("Failed to undo vote");
-    }
-  };
+      const token = localStorage.getItem("cmrm25");
+      if (!token) {
+        navigate(loginUrl);
+        return;
+      }
+      const response = await fetch(`${config.apiBaseUrl}/api/v1/votes`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ session_id, vote_id }),
+      });
+      if (response.ok) {
+        fetchVotedSessions();
+      } else {
+        console.error("Failed to undo vote");
+      }
+    },
+    [navigate, fetchVotedSessions]
+  );
 
   const voteAccordionItems = useMemo(() => {
     return votes.map((vote) => ({
@@ -142,14 +145,14 @@ export default function Vote() {
       title: (
         <p className="text-[15px] text-gray-900 font-normal">
           {vote.session_title}
-          <button
+          {/* <button
             data-session_id={vote.session_id}
             data-vote_id={vote.id}
             onClick={undoVote}
             className="button vote vote-undo my-2 ml-2"
           >
             Undo
-          </button>
+          </button> */}
         </p>
       ),
       description: vote.session_description,
@@ -160,6 +163,56 @@ export default function Vote() {
           </p>
         </div>
       ),
+      buttons: [
+        {
+          text: (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+          ),
+          onClick: undoVote,
+          data: { session_id: vote.session_id, vote_id: vote.id },
+        },
+        {
+          text: (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+          ),
+          onClick: () => {
+            setActiveSession({
+              id: vote.session_id,
+              title: vote.session_title || "",
+              description: vote.session_description || "",
+              status: "active",
+            });
+            setModalOpen(true);
+          },
+          data: { session_id: vote.session_id },
+        },
+      ],
     }));
   }, [undoVote, votes]);
   const sessionAccordionItems = useMemo(() => {
@@ -173,7 +226,20 @@ export default function Vote() {
       description: session.description,
       children: (
         <div className="article-content" key={session.id}>
+          <button
+            data-session_id={session.id}
+            data-session_title={session.title}
+            data-session_description={session.description}
+            onClick={() => {
+              setActiveSession(session);
+              setModalOpen(true);
+            }}
+            className="button vote vote-undo my-2"
+          >
+            Expand
+          </button>
           <p className="article-description">{session.description}</p>
+
           {Object.hasOwn(votesID, session.id) ? (
             <button
               data-session_id={session.id}
@@ -194,99 +260,137 @@ export default function Vote() {
           )}
         </div>
       ),
+      buttons: [
+        {
+          text: Object.hasOwn(votesID, session.id) ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+              />
+            </svg>
+          ),
+          onClick: (evt) => {
+            if (Object.hasOwn(votesID, session.id)) {
+              undoVote(evt);
+            } else {
+              handleVote(evt);
+            }
+          },
+          data: { session_id: session.id, vote_id: votesID[session.id] },
+        },
+        {
+          text: (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+          ),
+          onClick: () => {
+            setActiveSession(session);
+            setModalOpen(true);
+          },
+          data: { session_id: session.id },
+        },
+      ],
     }));
   }, [handleVote, sessions, undoVote, votesID]);
+
+  const Modal = ({ isOpen, onClose, children }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50	">
+        <div
+          className="bg-white rounded-lg shadow-lg p-6 max-w-[90%] md:max-w-[75%] lg:max-w-[60%] 2xl:max-w-[40%] w-full max-h-screen h-100 overflow-auto
+ relative"
+        >
+          <button
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            onClick={onClose}
+          >
+            &#x2715; {/* Close button */}
+          </button>
+          {children}
+        </div>
+      </div>
+    );
+  };
+  const SessionModal = ({ isOpen, onClose }) => {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <h2 className="text-lg font-bold">{activeSession?.title}</h2>
+        <p className="text-gray-600">{activeSession?.description}</p>
+      </Modal>
+    );
+  };
+  const [isModalOpen, setModalOpen] = useState(false);
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem("user") || "{}"));
+    fetchSessions();
+    fetchVotedSessions();
+  }, [fetchSessions, fetchVotedSessions]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar
         message={`Ciao ${user.firstName}`}
         cta={`Vota i tuoi 3 preferiti per Roma '25`}
       />
-      <div className="grid grid-cols-2 gap-1 mt-3">
-        <Accordion title="Proposals" items={sessionAccordionItems} />
-        <Accordion title="Favourites" items={voteAccordionItems} />
-      </div>
-      {/* 
-      <main className="flex items-center justify-center">
-        <div className="p-6 rounded-lg shadow">
-          <div className="flex flex-col items-center justify-center py-4">
-            {votes.length > 0 && (
-              <section className="container votes-container py-10">
-                <h4 className="text-2xl" style={{ margin: "1rem 0" }}>
-                  La tua selezione:
-                </h4>
-                <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                  {votes.map((vote) => (
-                    <article
-                      key={vote.id}
-                      className="article vote-card d-block"
-                      style={{
-                        padding: "1rem",
-                      }}
-                    >
-                      <span>{vote.title}</span>
-                      <button
-                        data-session_id={vote.session_id}
-                        data-vote_id={votesID[vote.session_id]}
-                        onClick={undoVote}
-                        className="button vote vote-undo"
-                        style={{
-                          margin: "0 0.5rem",
-                        }}
-                      >
-                        X
-                      </button>
-                    </article>
-                  ))}
-                </section>
-              </section>
-            )}
-            {votes.length < config.maxVotesLimit && (
-              <>
-                <h4 className="text-2xl" style={{ margin: "1rem 0" }}>
-                  Proposte:
-                </h4>
-
-                <section className="container sessions-container">
-                  <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                    {sessions.map((session) => (
-                      <article
-                        key={session.id}
-                        className="article session-card"
-                      >
-                        <div className="article-content">
-                          <h4 className="article-title">{session.title}</h4>
-                          <p className="article-description">
-                            {session.description}
-                          </p>
-                          {Object.hasOwn(votesID, session.id) ? (
-                            <button
-                              data-session_id={session.id}
-                              data-vote_id={votesID[session.id]}
-                              onClick={undoVote}
-                              className="button vote vote-undo"
-                            >
-                              Undo
-                            </button>
-                          ) : (
-                            <button
-                              data-session_id={session.id}
-                              onClick={handleVote}
-                              className="button vote"
-                            >
-                              Vote
-                            </button>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                  </section>
-                </section>
-              </>
-            )}
+      <div className="grid grid-cols-2 gap-1 mt-3 min-h-screen">
+        {votes.length < config.maxVotesLimit ? (
+          <AccordionThin title="Proposals" items={sessionAccordionItems} />
+        ) : (
+          <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden p-6">
+            <div className={`divide-y divide-gray-200 `}>
+              <h3 className="text-lg pb-3">Proposals</h3>
+              <div className="py-4">
+                You reached the maximum number of Favourites, please remove some
+                of them to vote for new ones.
+              </div>
+            </div>
           </div>
-        </div>
-      </main> */}
+        )}
+        <AccordionThin
+          title="Favourites"
+          items={voteAccordionItems}
+          fixed={true}
+        />
+      </div>
+      <SessionModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

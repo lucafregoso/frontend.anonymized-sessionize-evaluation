@@ -1,5 +1,8 @@
 @import "tailwindcss";
-
+:root {
+    --color-gray-200:rgba(207, 214, 228, 0.9);
+    --color-gray-700: #FF5C00;
+}
 article {
     border: 1px solid rgb(205, 205, 205);
     border-radius: 10px;
