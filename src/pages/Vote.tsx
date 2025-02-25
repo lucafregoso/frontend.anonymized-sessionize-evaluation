@@ -1,6 +1,7 @@
 import { MouseEvent, useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
+import SocialShare from "../components/socialShare/";
 // import Accordion from "../components/accordion";
 
 import config from "../lib/config";
@@ -30,7 +31,7 @@ export default function Vote() {
   const votesID = useMemo(() => {
     return votes.reduce(
       (aggregate, vote) => ({ ...aggregate, [vote.session_id]: vote.id }),
-      {}
+      {},
     );
   }, [votes]);
 
@@ -106,7 +107,7 @@ export default function Vote() {
         console.error("Failed to vote");
       }
     },
-    [navigate, fetchVotedSessions]
+    [navigate, fetchVotedSessions],
   );
   const undoVote = useCallback(
     async (evt: MouseEvent<HTMLButtonElement>) => {
@@ -136,7 +137,7 @@ export default function Vote() {
         console.error("Failed to undo vote");
       }
     },
-    [navigate, fetchVotedSessions]
+    [navigate, fetchVotedSessions],
   );
 
   const voteAccordionItems = useMemo(() => {
@@ -145,14 +146,6 @@ export default function Vote() {
       title: (
         <p className="text-[15px] text-gray-900 font-normal">
           {vote.session_title}
-          {/* <button
-            data-session_id={vote.session_id}
-            data-vote_id={vote.id}
-            onClick={undoVote}
-            className="button vote vote-undo my-2 ml-2"
-          >
-            Undo
-          </button> */}
         </p>
       ),
       description: vote.session_description,
@@ -367,25 +360,35 @@ export default function Vote() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar
-        message={`Ciao ${user.firstName}`}
-        cta={`Vota i tuoi 3 preferiti per Roma '25`}
+        message={`Ciao ${user.firstName}, seleziona i tuoi ${config.maxVotesLimit} preferiti dalla shortlist per Roma '25`}
       />
       <div className="grid grid-cols-2 gap-1 mt-3 min-h-screen">
         {votes.length < config.maxVotesLimit ? (
-          <AccordionThin title="Proposals" items={sessionAccordionItems} />
+          <AccordionThin title="Shortlist" items={sessionAccordionItems} />
         ) : (
           <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden p-6">
             <div className={`divide-y divide-gray-200 `}>
-              <h3 className="text-lg pb-3">Proposals</h3>
+              <h3 className="text-lg pb-3">Complimenti</h3>
               <div className="py-4">
-                You reached the maximum number of Favourites, please remove some
-                of them to vote for new ones.
+                La tua selezione è stata salvata con successo, rimuovi degli
+                elementi se vuoi aggiungerne altri.
+              </div>
+              <div className="pt-2 pb-4">
+                <SocialShare
+                  shareUrl="https://conferences.codemotion.com/rome2025/it/home-ita/"
+                  title="Codemotion Roma '25"
+                  twitter={{
+                    related: ["@CodemotionIT:Codemotion"],
+                    hashtags: ["CodemotionRome"],
+                  }}
+                  facebook={{ hashtag: "CodemotionRome" }}
+                />
               </div>
             </div>
           </div>
         )}
         <AccordionThin
-          title="Favourites"
+          title={`La tua top ${config.maxVotesLimit}`}
           items={voteAccordionItems}
           fixed={true}
         />

@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 
 interface NavbarProps {
   message: string;
-  cta: string;
 }
 
-export default function Navbar({ message, cta }: NavbarProps) {
+export default function Navbar({ message }: NavbarProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -46,11 +45,10 @@ export default function Navbar({ message, cta }: NavbarProps) {
                 height={24}
                 className="h-6 w-auto"
               />
-              <span className="text-xs text-gray-600 ml-2">{cta}</span>
             </>
           )}
 
-          <div className="text-gray-900 text-sm text-right">{message}</div>
+          <div className="text-xs text-gray-600 text-right">{message}</div>
         </div>
       </div>
     </header>
