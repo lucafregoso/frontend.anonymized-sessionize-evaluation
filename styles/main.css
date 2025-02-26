@@ -61,3 +61,8 @@ article .article-content {
     appearance: button;
     text-rendering: auto;
 }
+
+.min-h-fill {
+    min-height: calc(100vh - 100px);
+    overflow-y: auto;
+}

@@ -362,16 +362,18 @@ export default function Vote() {
       <Navbar
         message={`Ciao ${user.firstName}, seleziona i tuoi ${config.maxVotesLimit} preferiti dalla shortlist per Roma '25`}
       />
-      <div className="grid grid-cols-2 gap-1 mt-3 min-h-screen">
+      <div className="grid grid-cols-2 gap-1 mt-3 min-h-fill">
         {votes.length < config.maxVotesLimit ? (
-          <AccordionThin title="Shortlist" items={sessionAccordionItems} />
+          <AccordionThin
+            title={`Seleziona fino a ${config.maxVotesLimit} talk`}
+            items={sessionAccordionItems}
+          />
         ) : (
           <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden p-6">
             <div className={`divide-y divide-gray-200 `}>
-              <h3 className="text-lg pb-3">Complimenti</h3>
+              <h3 className="text-lg pb-3">Grazie</h3>
               <div className="py-4">
-                La tua selezione è stata salvata con successo, rimuovi degli
-                elementi se vuoi aggiungerne altri.
+                Hai selezionato il quantitativo massimo di talk.
               </div>
               <div className="pt-2 pb-4">
                 <SocialShare
